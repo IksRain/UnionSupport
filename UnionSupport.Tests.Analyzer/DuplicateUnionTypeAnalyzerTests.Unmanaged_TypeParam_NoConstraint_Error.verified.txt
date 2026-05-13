@@ -1,0 +1,1 @@
+﻿// [UNION003] Type parameter 'T' in union 'BadUnmanaged' must have the 'unmanaged' constraint for Unmanaged strategy

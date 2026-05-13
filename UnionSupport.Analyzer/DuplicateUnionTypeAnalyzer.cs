@@ -29,8 +29,17 @@ public sealed class DuplicateUnionTypeAnalyzer : DiagnosticAnalyzer
         isEnabledByDefault: true
     );
 
+    public static readonly DiagnosticDescriptor UnmanagedTypeRule = new(
+        "UNION003",
+        "Unmanaged strategy type constraint",
+        "{0}",
+        "UnionSupport",
+        DiagnosticSeverity.Error,
+        isEnabledByDefault: true
+    );
+
     public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get; }
-        = ImmutableArray.Create(DuplicateRule, RefStructRule);
+        = ImmutableArray.Create(DuplicateRule, RefStructRule, UnmanagedTypeRule);
 
     public override void Initialize(AnalysisContext context)
     {
@@ -84,6 +93,14 @@ public sealed class DuplicateUnionTypeAnalyzer : DiagnosticAnalyzer
 
             if (ti.Type is ITypeParameterSymbol tp)
             {
+                // UNION003: Unmanaged strategy requires unmanaged constraint on type params
+                if (strategyVal == 1 && !tp.HasUnmanagedTypeConstraint)
+                {
+                    context.ReportDiagnostic(Diagnostic.Create(UnmanagedTypeRule,
+                        param.GetLocation(),
+                        $"Type parameter '{tp.Name}' in union '{typeDecl.Identifier.Text}' must have the 'unmanaged' constraint for Unmanaged strategy"));
+                }
+
                 if (typeParamSeen.TryGetValue(tp.Name, out _))
                 {
                     context.ReportDiagnostic(Diagnostic.Create(DuplicateRule,
@@ -96,6 +113,15 @@ public sealed class DuplicateUnionTypeAnalyzer : DiagnosticAnalyzer
             }
             else if (ti.Type is INamedTypeSymbol namedType)
             {
+                // UNION003: Unmanaged strategy requires unmanaged types
+                if (strategyVal == 1 && namedType.IsReferenceType)
+                {
+                    context.ReportDiagnostic(Diagnostic.Create(UnmanagedTypeRule,
+                        param.GetLocation(),
+                        $"Type '{param.Type}' is a reference type and cannot be used with Unmanaged FieldOffset strategy in union '{typeDecl.Identifier.Text}'"));
+                    continue;
+                }
+
                 // UNION002: ref struct type on non-ref struct union
                 if (namedType.IsRefLikeType && !isRefStruct)
                 {

@@ -101,4 +101,48 @@ public class DuplicateUnionTypeAnalyzerTests
             """;
         return AnalyzerTestHelper.Verify(source);
     }
+
+    [Fact]
+    public Task Unmanaged_RefType_Error()
+    {
+        var source = """
+            using UnionSupport;
+            [UnionImpl(UnionImplementationStrategy.Unmanaged)]
+            partial struct BadUnmanaged(int a, string b);
+            """;
+        return AnalyzerTestHelper.Verify(source);
+    }
+
+    [Fact]
+    public Task Unmanaged_TypeParam_NoConstraint_Error()
+    {
+        var source = """
+            using UnionSupport;
+            [UnionImpl(UnionImplementationStrategy.Unmanaged)]
+            partial struct BadUnmanaged<T>(int a, T b);
+            """;
+        return AnalyzerTestHelper.Verify(source);
+    }
+
+    [Fact]
+    public Task Unmanaged_TypeParam_WithConstraint_Ok()
+    {
+        var source = """
+            using UnionSupport;
+            [UnionImpl(UnionImplementationStrategy.Unmanaged)]
+            partial struct GoodUnmanaged<T>(int a, T b) where T : unmanaged;
+            """;
+        return AnalyzerTestHelper.Verify(source);
+    }
+
+    [Fact]
+    public Task Unmanaged_AllUnmanagedTypes_Ok()
+    {
+        var source = """
+            using UnionSupport;
+            [UnionImpl(UnionImplementationStrategy.Unmanaged)]
+            partial struct GoodUnmanaged(int a, float b, long c);
+            """;
+        return AnalyzerTestHelper.Verify(source);
+    }
 }

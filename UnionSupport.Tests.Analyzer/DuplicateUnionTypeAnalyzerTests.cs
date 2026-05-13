@@ -56,4 +56,37 @@ public class DuplicateUnionTypeAnalyzerTests
             """;
         return AnalyzerTestHelper.Verify(source);
     }
+
+    [Fact]
+    public Task RefStruct_Unmanaged_Error()
+    {
+        var source = """
+            using UnionSupport;
+            [UnionImpl(UnionImplementationStrategy.Unmanaged)]
+            ref partial struct BadRef(int a, float b);
+            """;
+        return AnalyzerTestHelper.Verify(source);
+    }
+
+    [Fact]
+    public Task RefStruct_Erasure_Error()
+    {
+        var source = """
+            using UnionSupport;
+            [UnionImpl(UnionImplementationStrategy.ObjectErasure)]
+            ref partial struct BadRef(int a, string b);
+            """;
+        return AnalyzerTestHelper.Verify(source);
+    }
+
+    [Fact]
+    public Task RefStruct_Product_Ok()
+    {
+        var source = """
+            using UnionSupport;
+            [UnionImpl(UnionImplementationStrategy.Product)]
+            ref partial struct GoodRef(int a, float b);
+            """;
+        return AnalyzerTestHelper.Verify(source);
+    }
 }

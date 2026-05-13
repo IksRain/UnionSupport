@@ -45,4 +45,15 @@ public class ProductGeneratorTests
             """;
         return GeneratorTestHelper.VerifySource(source);
     }
+
+    [Fact]
+    public Task RefStruct_Product()
+    {
+        var source = """
+            using UnionSupport;
+            [UnionImpl(UnionImplementationStrategy.Product)]
+            ref partial struct RefUnion(int a, float b);
+            """;
+        return GeneratorTestHelper.VerifySource(source);
+    }
 }

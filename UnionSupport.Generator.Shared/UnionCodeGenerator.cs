@@ -44,14 +44,21 @@ internal static class UnionCodeGenerator
         }
 
         var tparams = TypeParams(info);
-        var typeKw = info.IsValueType ? "struct" : "class";
+        var typeKw = info.IsRefStruct ? "ref struct" : (info.IsValueType ? "struct" : "class");
 
         if (!string.IsNullOrEmpty(extraTypeAttr))
             sb.AppendLine($"    {extraTypeAttr}");
 
         sb.AppendLine($"    {GeneratedAttr}");
-        sb.AppendLine($"    [global::System.Runtime.CompilerServices.Union]");
-        sb.AppendLine($"    partial {typeKw} {info.TypeName}{tparams} : global::System.Runtime.CompilerServices.IUnion");
+        if (!info.IsRefStruct)
+        {
+            sb.AppendLine($"    [global::System.Runtime.CompilerServices.Union]");
+            sb.AppendLine($"    partial {typeKw} {info.TypeName}{tparams} : global::System.Runtime.CompilerServices.IUnion");
+        }
+        else
+        {
+            sb.AppendLine($"    partial {typeKw} {info.TypeName}{tparams}");
+        }
         sb.AppendLine("    {");
 
         if (info.Members.Count > 0)

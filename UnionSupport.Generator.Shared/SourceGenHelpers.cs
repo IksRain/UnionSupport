@@ -1,4 +1,5 @@
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace UnionSupport.Generator.Shared;
@@ -67,10 +68,13 @@ internal static class SourceGenHelpers
         if (nsDisplay == "<global namespace>")
             nsDisplay = "";
 
+        var isRefStruct = typeDecl.Modifiers.Any(SyntaxKind.RefKeyword);
+
         return new UnionTypeInfo(
             TypeName: typeSymbol.Name,
             Namespace: nsDisplay,
             IsValueType: typeSymbol.IsValueType,
+            IsRefStruct: isRefStruct,
             IsGeneric: typeSymbol.IsGenericType,
             GenericParameters: genericParams,
             Members: members,
@@ -83,6 +87,7 @@ internal readonly record struct UnionTypeInfo(
     string TypeName,
     string Namespace,
     bool IsValueType,
+    bool IsRefStruct,
     bool IsGeneric,
     List<string> GenericParameters,
     List<UnionMemberInfo> Members,

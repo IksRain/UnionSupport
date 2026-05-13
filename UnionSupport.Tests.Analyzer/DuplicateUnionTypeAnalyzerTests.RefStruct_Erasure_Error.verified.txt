@@ -1,0 +1,1 @@
+﻿// [UNION002] ref struct union 'BadRef' must use Product strategy. Unmanaged and ObjectErasure are not supported for ref struct types

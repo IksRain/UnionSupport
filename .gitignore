@@ -1,5 +1,6 @@
 bin/
 obj/
+nuget/
 *.received.txt
 *.user
 *.suo

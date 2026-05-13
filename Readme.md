@@ -54,14 +54,14 @@ UnionSupport.slnx
 
 ## NuGet Packages
 
-| Package | Description |
-|---------|-------------|
-| `UnionSupport.Core` | Core types — required |
-| `UnionSupport.Generator.Product` | Tagged product type generator |
-| `UnionSupport.Generator.Unmanaged` | FieldOffset native sum type generator |
-| `UnionSupport.Generator.Erasure` | Object type erasure generator |
-| `UnionSupport.Analyzer` | Compile-time analyzer |
-| `UnionSupport.Type` | Pre-generated union types (no generator needed) |
+| Package                            | Description                                     |
+|------------------------------------|-------------------------------------------------|
+| `UnionSupport.Core`                | Core types — required                           |
+| `UnionSupport.Generator.Product`   | Tagged product type generator                   |
+| `UnionSupport.Generator.Unmanaged` | FieldOffset native sum type generator           |
+| `UnionSupport.Generator.Erasure`   | Object type erasure generator                   |
+| `UnionSupport.Analyzer`            | Compile-time analyzer                           |
+| `UnionSupport.Type`                | Pre-generated union types (no generator needed) |
 
 ## Quick Start
 
@@ -135,16 +135,16 @@ switch (u)
 
 ## Three Strategies
 
-| | Product | Unmanaged | ObjectErasure |
-|---|---|---|---|
-| Storage | Separate fields + `byte` tag | FieldOffset overlapping | Single `object?` field |
-| Layout | Compiler-managed | `[StructLayout(Explicit)]` | Regular |
-| Memory | Sum of field sizes | Largest field + 1 byte | Object reference |
-| Boxing | None | None | Value types boxed |
-| Generic constraint | None | `T : unmanaged` | None |
-| Use case | General purpose | High-perf, interop | Simple ref/value mix |
-| ref struct | ✅ | ❌ | ❌ |
-| Field init | `= paramName` | Constructor body | Constructor body |
+|                    | Product                      | Unmanaged                  | ObjectErasure          |
+|--------------------|------------------------------|----------------------------|------------------------|
+| Storage            | Separate fields + `byte` tag | FieldOffset overlapping    | Single `object?` field |
+| Layout             | Compiler-managed             | `[StructLayout(Explicit)]` | Regular                |
+| Memory             | Sum of field sizes           | Largest field + 1 byte     | Object reference       |
+| Boxing             | None                         | None                       | Value types boxed      |
+| Generic constraint | None                         | `T : unmanaged`            | None                   |
+| Use case           | General purpose              | High-perf, interop         | Simple ref/value mix   |
+| ref struct         | ✅                            | ❌                          | ❌                      |
+| Field init         | `= paramName`                | Constructor body           | Constructor body       |
 
 ### Generated Code (Product)
 
@@ -169,11 +169,11 @@ partial struct MyUnion : IUnion
 
 ## Analyzer Rules
 
-| ID | Rule |
-|----|------|
-| **UNION001** | Duplicate type: `(int, int)` / `(T, T)` |
+| ID           | Rule                                                                   |
+|--------------|------------------------------------------------------------------------|
+| **UNION001** | Duplicate type: `(int, int)` / `(T, T)`                                |
 | **UNION002** | Ref struct constraint: must use Product / ref member on non-ref struct |
-| **UNION003** | Unmanaged strategy requires `!IsUnmanagedType` — no managed types |
+| **UNION003** | Unmanaged strategy requires `!IsUnmanagedType` — no managed types      |
 
 ---
 
@@ -189,7 +189,7 @@ The C# language team has drafted the full union specification in [csharplang/pro
 3. We will eliminate compile-time code generation overhead and switch to compiler-native support.
 4. Migration tooling will be provided for existing projects.
 
-**Contributions welcome.** If you're interested in the migration work or have ideas, join the discussion at [Issues](https://github.com/anomalyco/UnionSupport/issues).
+**Contributions welcome.** If you're interested in the migration work or have ideas, join the discussion at [Issues](https://github.com/IksRain/UnionSupport/issues).
 
 ## License
 

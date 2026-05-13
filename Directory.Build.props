@@ -22,6 +22,7 @@
         <EmbedUntrackedSources>true</EmbedUntrackedSources>
         <IncludeSymbols>true</IncludeSymbols>
         <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+        <PackageOutputPath>$(MSBuildThisFileDirectory)nuget\</PackageOutputPath>
 
         <!-- Common -->
         <LangVersion>preview</LangVersion>

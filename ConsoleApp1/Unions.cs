@@ -1,6 +1,6 @@
 // Product strategy
-[UnionSupport.UnionImpl(UnionSupport.UnionImplementationStrategy.Product)]
-partial struct MyUnion(int? a, float b);
+[UnionSupport.UnionImpl]
+partial struct MyUnion(int a, float b);
 
 // Unmanaged strategy
 [UnionSupport.UnionImpl(UnionSupport.UnionImplementationStrategy.Unmanaged)]

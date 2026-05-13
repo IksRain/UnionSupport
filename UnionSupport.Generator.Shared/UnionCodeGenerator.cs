@@ -10,11 +10,11 @@ internal static class UnionCodeGenerator
     {
         return info.StrategyName switch
         {
-            "Product" => GenerateUnion(info, Fields: ProductFields, Ctors: ProductCtors, ValueExpr: ValueExpr_Flag, HasValueExpr: HasValueExpr_Flag, TryGetBody: TryGetBody_Direct),
-            "Unmanaged" => GenerateUnion(info, Fields: UnmanagedFields, Ctors: UnmanagedCtors, ValueExpr: ValueExpr_Flag, HasValueExpr: HasValueExpr_Flag, TryGetBody: TryGetBody_Direct,
+            "Product" => GenerateUnion(info, Fields: ProductFields, Ctors: ProductCtors, ValueExprFactory: ValueExpr_Field, HasValueExpr: HasValueExpr_Flag, TryGetBodyFactory: TryGetBody_Field),
+            "Unmanaged" => GenerateUnion(info, Fields: UnmanagedFields, Ctors: UnmanagedCtors, ValueExprFactory: ValueExpr_Field, HasValueExpr: HasValueExpr_Flag, TryGetBodyFactory: TryGetBody_Field,
                 extraTypeAttr: "[System.Runtime.InteropServices.StructLayout(System.Runtime.InteropServices.LayoutKind.Explicit)]"),
-            "ObjectErasure" => GenerateUnion(info, Fields: ErasureFields, Ctors: ErasureCtors, ValueExpr: ValueExpr_Erasure, HasValueExpr: HasValueExpr_Erasure, TryGetBody: TryGetBody_Erasure),
-            _ => GenerateUnion(info, Fields: ProductFields, Ctors: ProductCtors, ValueExpr: ValueExpr_Flag, HasValueExpr: HasValueExpr_Flag, TryGetBody: TryGetBody_Direct)
+            "ObjectErasure" => GenerateUnion(info, Fields: ErasureFields, Ctors: ErasureCtors, ValueExprFactory: ValueExpr_ErasureFactory, HasValueExpr: HasValueExpr_Erasure, TryGetBodyFactory: TryGetBody_ErasureFactory),
+            _ => GenerateUnion(info, Fields: ProductFields, Ctors: ProductCtors, ValueExprFactory: ValueExpr_Field, HasValueExpr: HasValueExpr_Flag, TryGetBodyFactory: TryGetBody_Field)
         };
     }
 
@@ -24,7 +24,7 @@ internal static class UnionCodeGenerator
     private delegate void TryGetWriter(StringBuilder sb, UnionTypeInfo info, int i);
 
     private static string GenerateUnion(UnionTypeInfo info,
-        FieldsWriter Fields, CtorsWriter Ctors, ExprWriter ValueExpr, ExprWriter HasValueExpr, TryGetWriter TryGetBody,
+        FieldsWriter Fields, CtorsWriter Ctors, ExprWriter ValueExprFactory, ExprWriter HasValueExpr, TryGetWriter TryGetBodyFactory,
         string extraTypeAttr = "")
     {
         var sb = new StringBuilder();
@@ -71,7 +71,7 @@ internal static class UnionCodeGenerator
             Fields(sb, info);
 
             // --- Value property ---
-            AppendValueProp(sb, info);
+            AppendValueProp(sb, info, ValueExprFactory);
 
             // --- HasValue ---
             sb.AppendLine($"        {GeneratedAttr}");
@@ -84,10 +84,11 @@ internal static class UnionCodeGenerator
             for (int i = 0; i < info.Members.Count; i++)
             {
                 var m = info.Members[i];
+                var outType = m.UnwrappedType ?? m.DisplayType;
                 sb.AppendLine($"        {GeneratedAttr}");
-                sb.AppendLine($"        public bool TryGetValue(out {m.DisplayType} value)");
+                sb.AppendLine($"        public bool TryGetValue(out {outType} value)");
                 sb.AppendLine("        {");
-                TryGetBody(sb, info, i);
+                TryGetBodyFactory(sb, info, i);
                 sb.AppendLine("        }");
                 sb.AppendLine();
             }
@@ -131,6 +132,28 @@ internal static class UnionCodeGenerator
         sb.AppendLine();
     }
 
+    private static void ValueExpr_Field(StringBuilder sb, UnionTypeInfo info)
+    {
+        sb.AppendLine("                return __private_flag switch");
+        sb.AppendLine("                {");
+        for (int i = 0; i < info.Members.Count; i++)
+            sb.AppendLine($"                    {i + 1} => {info.Members[i].FieldName},");
+        sb.AppendLine("                    _ => null,");
+        sb.AppendLine("                };");
+    }
+
+    private static void TryGetBody_Field(StringBuilder sb, UnionTypeInfo info, int i)
+    {
+        var m = info.Members[i];
+        sb.AppendLine($"            if (__private_flag == {i + 1})");
+        sb.AppendLine("            {");
+        sb.AppendLine($"                value = {m.FieldName};");
+        sb.AppendLine("                return true;");
+        sb.AppendLine("            }");
+        sb.AppendLine($"            value = default!;");
+        sb.AppendLine("            return false;");
+    }
+
     private static void UnmanagedFields(StringBuilder sb, UnionTypeInfo info)
     {
         sb.AppendLine($"        {GeneratedAttr}");
@@ -152,7 +175,7 @@ internal static class UnionCodeGenerator
 
     // ═══════════════ Value / HasValue ═══════════════
 
-    private static void AppendValueProp(StringBuilder sb, UnionTypeInfo info)
+    private static void AppendValueProp(StringBuilder sb, UnionTypeInfo info, ExprWriter factory)
     {
         sb.AppendLine($"        {GeneratedAttr}");
         if (info.StrategyName == "ObjectErasure")
@@ -165,28 +188,16 @@ internal static class UnionCodeGenerator
             sb.AppendLine("        {");
             sb.AppendLine("            get");
             sb.AppendLine("            {");
-            ValueExpr_Flag(sb, info);
+            factory(sb, info);
             sb.AppendLine("            }");
             sb.AppendLine("        }");
         }
         sb.AppendLine();
     }
 
-    private static void ValueExpr_Flag(StringBuilder sb, UnionTypeInfo info)
+    private static void ValueExpr_ErasureFactory(StringBuilder sb, UnionTypeInfo info)
     {
-        sb.AppendLine($"                return __private_flag switch");
-        sb.AppendLine("                {");
-        for (int i = 0; i < info.Members.Count; i++)
-        {
-            sb.AppendLine($"                    {i + 1} => {info.Members[i].FieldName},");
-        }
-        sb.AppendLine("                    _ => null,");
-        sb.AppendLine("                };");
-    }
-
-    private static void ValueExpr_Erasure(StringBuilder sb, UnionTypeInfo info)
-    {
-        sb.Append("=> __value");
+        sb.Append("__value");
     }
 
     private static void HasValueExpr_Flag(StringBuilder sb, UnionTypeInfo info)
@@ -201,19 +212,7 @@ internal static class UnionCodeGenerator
 
     // ═══════════════ TryGetValue bodies ═══════════════
 
-    private static void TryGetBody_Direct(StringBuilder sb, UnionTypeInfo info, int i)
-    {
-        var m = info.Members[i];
-        sb.AppendLine($"            if (__private_flag == {i + 1})");
-        sb.AppendLine("            {");
-        sb.AppendLine($"                value = {m.FieldName};");
-        sb.AppendLine("                return true;");
-        sb.AppendLine("            }");
-        sb.AppendLine($"            value = default!;");
-        sb.AppendLine("            return false;");
-    }
-
-    private static void TryGetBody_Erasure(StringBuilder sb, UnionTypeInfo info, int i)
+    private static void TryGetBody_ErasureFactory(StringBuilder sb, UnionTypeInfo info, int i)
     {
         var m = info.Members[i];
         sb.AppendLine($"            if (__value is {m.DisplayType} _v)");

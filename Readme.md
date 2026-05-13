@@ -1,73 +1,103 @@
 # UnionSupport
 
-[![vibe coding](https://img.shields.io/badge/vibe_coding-interim-yellow)](#-disclaimer)
+[![vibe coding](https://img.shields.io/badge/vibe_coding-interim-yellow)](#%EF%B8%8F-disclaimer)
 
-**UnionSupport** 是一套基于 C# Source Generator 的**运行时和类型**（Discriminated Union）实现。在当前 C# 语言尚未原生支持 `struct union` / `union struct` 的过渡阶段，通过编译期代码生成提供三种联合体实现策略。
+A C# Source Generator providing **discriminated union** implementations, aligned with the [C# Language Proposal for Unions](https://github.com/dotnet/csharplang/blob/main/proposals/unions.md).
+<br>
+<sub>基于 C# Source Generator 的和类型实现，遵循 C# 语言官方提案标准。</sub>
 
-> **Stop-Gap Solution**: 本项目是面向未来的**过渡方案**。一旦 .NET 官方完成 `struct union` 原生支持，将编写 **Code Fix** 协助项目无缝迁移至官方语法。
+> **Stop-Gap Solution**: Once .NET ships native `struct union` / `union struct`, a **Code Fix** will be provided to migrate seamlessly.
 
 ---
 
-## 项目结构
+## Spec Compliance
+
+This project implements the **union pattern** as defined in the official proposal:
+
+- `[Union]` attribute marks a type as a union type
+- `IUnion { object? Value { get; } }` interface (`System.Runtime.CompilerServices`)
+- **Union conversion**: implicit conversions from each case type to the union
+- **Union matching**: pattern matching unwraps `IUnion.Value` automatically
+- **Non-boxing access pattern**: `HasValue` + per-case `TryGetValue(out T)` overloads
+
+### Nullable Value Type Unwrapping
+
+Per the proposal: *"If the case type is a nullable value type, the type of the parameter should be identity-convertible to the underlying type."*
+
+`TryGetValue` and implicit operators strip `?` from nullable value type members — `int?` becomes `int`:
+
+```csharp
+[UnionImpl] partial struct MyUnion(int? a, float b);
+
+MyUnion x = 42;                  // int → int (not int?)
+x.TryGetValue(out int iv);       // out int, not out int?
+```
+<sub>按提案标准：nullable 值类型穿透为底层类型，TryGetValue 和隐式转换使用展开后的类型。</sub>
+
+---
+
+## Project Structure
 
 ```
 UnionSupport.slnx
 ├── src/
-│   ├── UnionSupport.Core/              核心类型: IUnion, [UnionImpl], UnionAttribute
-│   ├── UnionSupport.Generator.Shared/   共享代码生成逻辑
-│   ├── UnionSupport.Generator.Product/  策略1: 积类型模拟
-│   ├── UnionSupport.Generator.Unmanaged/策略2: FieldOffset
-│   ├── UnionSupport.Generator.Erasure/  策略3: Object 擦除
-│   ├── UnionSupport.Analyzer/           编译期分析器 (UNION001-003)
-│   └── UnionSupport.Type/              预生成泛型联合体 1..17 参数
-├── tests/                              xUnit + Verify 快照测试
-└── demo/ConsoleApp1/                   使用示例
+│   ├── UnionSupport.Core/              IUnion, [UnionImpl], [Union], Strategy enum
+│   ├── UnionSupport.Generator.Shared/  Shared code-gen + field name encoding
+│   ├── UnionSupport.Generator.Product/  Strategy 1: Tagged product type
+│   ├── UnionSupport.Generator.Unmanaged/Strategy 2: FieldOffset native sum type
+│   ├── UnionSupport.Generator.Erasure/  Strategy 3: Object type erasure
+│   ├── UnionSupport.Analyzer/          Compile-time diagnostics (UNION001-003)
+│   └── UnionSupport.Type/             Pre-generated unions for 1-17 type params
+├── tests/                             xUnit + Verify snapshot tests
+└── demo/ConsoleApp1/                  Usage examples
 ```
 
-## NuGet 包
+## NuGet Packages
 
-| 包名 | 说明                           |
-|------|------------------------------|
-| `UnionSupport.Core` | 核心类型定义 (必需)                  |
-| `UnionSupport.Generator.Product` | 积类型模拟实现生成器                   |
-| `UnionSupport.Generator.Unmanaged` | FieldOffset 原生和类型C样式Union实现生成器 |
-| `UnionSupport.Generator.Erasure` | Object 类型擦除实现生成器             |
-| `UnionSupport.Analyzer` | 编译期分析器                       |
-| `UnionSupport.Type` | 预生成 1-17 泛型参数的联合体类型，无需导入源生成器 |
+| Package | Description |
+|---------|-------------|
+| `UnionSupport.Core` | Core types — required |
+| `UnionSupport.Generator.Product` | Tagged product type generator |
+| `UnionSupport.Generator.Unmanaged` | FieldOffset native sum type generator |
+| `UnionSupport.Generator.Erasure` | Object type erasure generator |
+| `UnionSupport.Analyzer` | Compile-time analyzer |
+| `UnionSupport.Type` | Pre-generated union types (no generator needed) |
 
-## 快速开始
+## Quick Start
 
-### 自定义联合体
+### Custom Unions
+
+`[UnionImpl]` defaults to Product strategy.
 
 ```csharp
 using UnionSupport;
 
-// 策略1: 积类型模拟 (默认，适用最广)
-[UnionImpl(UnionImplementationStrategy.Product)]
+// Product (default, general purpose)
+[UnionImpl]
 partial struct MyUnion(int a, float b, string c);
 
-// 策略2: FieldOffset (高性能，仅 unmanaged 类型)
+// Unmanaged FieldOffset (high perf, unmanaged types only)
 [UnionImpl(UnionImplementationStrategy.Unmanaged)]
 partial struct IntOrFloat(int a, float b);
 
-// 策略3: Object 擦除 (C# 原生方案，单字段)
+// Object Erasure (single object field, C# native)
 [UnionImpl(UnionImplementationStrategy.ObjectErasure)]
 partial struct AnyValue(int a, string b);
 
-// ref struct (仅支持 Product 策略)
-[UnionImpl(UnionImplementationStrategy.Product)]
+// ref struct (Product only)
+[UnionImpl]
 ref partial struct SpanUnion(int a, float b);
 ```
 
-### 使用生成的类型
+### Usage
 
 ```csharp
-// 隐式转换
+// Implicit conversions
 MyUnion x = 42;
 IntOrFloat y = 3.14f;
 AnyValue z = "hello";
 
-// pattern matching (C# 编译器自动解包 IUnion.Value)
+// Pattern matching (compiler auto-unwraps IUnion.Value)
 switch (x)
 {
     case int i:  Console.WriteLine($"int: {i}"); break;
@@ -75,22 +105,23 @@ switch (x)
     case string s: Console.WriteLine($"string: {s}"); break;
 }
 
-// TryGetValue 访问
+// Non-boxing access
 if (x.TryGetValue(out int iv))
     Console.WriteLine($"got int: {iv}");
 
-// 直接访问 Value 属性
+// Direct access
 Console.WriteLine(x.Value);
 Console.WriteLine(x.HasValue);
 ```
 
-### 使用预生成泛型类型
+### Pre-generated Generic Types
+
+Add `UnionSupport.Type` package:
 
 ```csharp
-// 引用 UnionSupport.Type 包后即可使用
-Union<int, float, string> u = 42;
-CUnion<int, float> cu = 3.14f;      // where T : unmanaged
-BoxedUnion<int, string> bu = "hi";   // Object 擦除
+Union<int, float, string> u = 42;      // Product
+CUnion<int, float> cu = 3.14f;         // Unmanaged (T : unmanaged)
+BoxedUnion<int, string> bu = "hi";     // Object Erasure
 
 switch (u)
 {
@@ -100,38 +131,65 @@ switch (u)
 }
 ```
 
-## 三种策略对比
+> Duplicate type parameters (e.g. `Union<int, int>`) are caught at instantiation by the C# compiler itself — duplicate `TryGetValue(out int)` signatures cause CS0111.
+
+## Three Strategies
 
 | | Product | Unmanaged | ObjectErasure |
 |---|---|---|---|
-| 存储 | 独立字段 + byte 标志 | FieldOffset 重叠 | 单 object? 字段 |
-| 内存 | struct 大小 = 字段和 | 最大字段 + 1 byte | object 引用 |
-| 装箱 | 无 | 无 | 值类型装箱 |
-| 泛型约束 | 无 | `T : unmanaged` | 无 |
-| 适用场景 | 通用 | 高性能/互操作 | 简单引用类型混合 |
+| Storage | Separate fields + `byte` tag | FieldOffset overlapping | Single `object?` field |
+| Layout | Compiler-managed | `[StructLayout(Explicit)]` | Regular |
+| Memory | Sum of field sizes | Largest field + 1 byte | Object reference |
+| Boxing | None | None | Value types boxed |
+| Generic constraint | None | `T : unmanaged` | None |
+| Use case | General purpose | High-perf, interop | Simple ref/value mix |
 | ref struct | ✅ | ❌ | ❌ |
+| Field init | `= paramName` | Constructor body | Constructor body |
 
-## 分析器规则
+### Generated Code (Product)
 
-| ID | 规则 |
+```csharp
+partial struct MyUnion : IUnion
+{
+    private byte __private_flag;
+    private int __System_Int32 = a;       // field initializer from primary ctor param
+    private float __System_Single = b;    // → CS9113 eliminated
+
+    public object? Value { get { return __private_flag switch { 1 => __System_Int32, 2 => __System_Single, _ => null }; } }
+    public bool HasValue => __private_flag != 0;
+    public bool TryGetValue(out int value) { if (__private_flag == 1) { value = __System_Int32; return true; } ... }
+
+    public MyUnion(int value) : this(value, default!) { __private_flag = 1; }
+    public MyUnion(float value) : this(default!, value) { __private_flag = 2; }
+
+    public static implicit operator MyUnion(int value) => new(value);
+    public static implicit operator MyUnion(float value) => new(value);
+}
+```
+
+## Analyzer Rules
+
+| ID | Rule |
 |----|------|
-| **UNION001** | 类型重复: `(int, int)` / `(T, T)` |
-| **UNION002** | ref struct 约束: 必须用 Product / 成员不能放普通 struct |
-| **UNION003** | Unmanaged 策略要求 managed 类型 (无引用类型字段) |
+| **UNION001** | Duplicate type: `(int, int)` / `(T, T)` |
+| **UNION002** | Ref struct constraint: must use Product / ref member on non-ref struct |
+| **UNION003** | Unmanaged strategy requires `!IsUnmanagedType` — no managed types |
 
 ---
 
-## ⚠️ Disclaimer
+## Disclaimer
 
-> **本项目是 Vibe Coding 产物，是 .NET 官方 `struct union` 的过渡方案。**
+> **This is a Vibe Coding project — a stop-gap for the absence of native `struct union` in C#.**
+> <br><sub>本项目是 Vibe Coding 产物，是 .NET 官方 `struct union` 的过渡替代方案。</sub>
 
-C# 语言团队已在 [csharplang/proposals/unions.md](https://github.com/dotnet/csharplang/blob/main/proposals/unions.md) 中制定了完整的联合体语言规范。一旦 .NET 官方完成编译器的 `struct union` / `union struct` 原生实现，我们将：
+The C# language team has drafted the full union specification in [csharplang/proposals/unions.md](https://github.com/dotnet/csharplang/blob/main/proposals/unions.md). Once the compiler ships native `union struct` / `struct union` support:
 
-1. 编写 **Code Fix** 将 `[UnionImpl(Product)] partial struct Foo(...)` 无缝迁移为 `union struct Foo(...)` 我们已实现一个小demo用作迁移union struct和struct union，我们尚不清楚官方的语法会如何，但是我们已经做好了准备
-3. 消除编译期代码生成开销，直接使用编译器原生支持
-4. 提供迁移工具链帮助现有项目平滑升级
+1. A **Code Fix** will migrate `[UnionImpl(Product)] partial struct Foo(...)` → `union struct Foo(...)` seamlessly.
+2. A proof-of-concept Code Fix demo for `Product → struct union` / `Product → union struct` already exists.
+3. We will eliminate compile-time code generation overhead and switch to compiler-native support.
+4. Migration tooling will be provided for existing projects.
 
-**欢迎参与迁移贡献。** 如果你对此项目有建议或希望在 .NET 官方实现后协助维护 Code Fix，请参与 [Issues](https://github.com/anomalyco/UnionSupport/issues) 讨论。
+**Contributions welcome.** If you're interested in the migration work or have ideas, join the discussion at [Issues](https://github.com/anomalyco/UnionSupport/issues).
 
 ## License
 

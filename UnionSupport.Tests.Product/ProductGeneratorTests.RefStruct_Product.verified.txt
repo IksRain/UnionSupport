@@ -5,7 +5,7 @@ using System;
 using System.CodeDom.Compiler;
 
     [global::System.CodeDom.Compiler.GeneratedCode("UnionSupport", "1.0.0")]
-    partial ref struct RefUnion
+    ref partial struct RefUnion
     {
         [global::System.CodeDom.Compiler.GeneratedCode("UnionSupport", "1.0.0")]
         private byte __private_flag;

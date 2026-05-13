@@ -44,7 +44,8 @@ internal static class UnionCodeGenerator
         }
 
         var tparams = TypeParams(info);
-        var typeKw = info.IsRefStruct ? "ref struct" : (info.IsValueType ? "struct" : "class");
+        var typeKw = info.IsValueType ? "struct" : "class";
+        var refPrefix = info.IsRefStruct ? "ref " : "";
 
         if (!string.IsNullOrEmpty(extraTypeAttr))
             sb.AppendLine($"    {extraTypeAttr}");
@@ -53,11 +54,11 @@ internal static class UnionCodeGenerator
         if (!info.IsRefStruct)
         {
             sb.AppendLine($"    [global::System.Runtime.CompilerServices.Union]");
-            sb.AppendLine($"    partial {typeKw} {info.TypeName}{tparams} : global::System.Runtime.CompilerServices.IUnion");
+            sb.AppendLine($"    {refPrefix}partial {typeKw} {info.TypeName}{tparams} : global::System.Runtime.CompilerServices.IUnion");
         }
         else
         {
-            sb.AppendLine($"    partial {typeKw} {info.TypeName}{tparams}");
+            sb.AppendLine($"    {refPrefix}partial {typeKw} {info.TypeName}{tparams}");
         }
         sb.AppendLine("    {");
 

@@ -2,13 +2,9 @@
 
     <PropertyGroup>
         <TargetFramework>netstandard2.0</TargetFramework>
-        <LangVersion>preview</LangVersion>
-        <ImplicitUsings>enable</ImplicitUsings>
-        <Nullable>enable</Nullable>
         <RootNamespace>UnionSupport.Type</RootNamespace>
-        <IsPackable>true</IsPackable>
         <PackageId>UnionSupport.Type</PackageId>
-        <Description>Pre-generated union types (Product/Unmanaged/ObjectErasure) for 1-17 type parameters.</Description>
+        <Description>Pre-generated union types (Product/Unmanaged/ObjectErasure) for 1–17 type parameters. No source generator needed.</Description>
         <DevelopmentDependency>true</DevelopmentDependency>
     </PropertyGroup>
 

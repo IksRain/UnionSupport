@@ -1,0 +1,44 @@
+<Project>
+
+    <PropertyGroup>
+        <!-- Version: override with -p:Version=X.Y.Z or -p:VersionPrefix=X.Y.Z[-suffix] -->
+        <VersionPrefix>1.0.0</VersionPrefix>
+        <VersionSuffix>preview</VersionSuffix>
+        <AssemblyVersion>$(VersionPrefix).0</AssemblyVersion>
+        <FileVersion>$(VersionPrefix).0</FileVersion>
+
+        <!-- Package Metadata -->
+        <Authors>IksRain</Authors>
+        <PackageProjectUrl>https://github.com/IksRain/UnionSupport</PackageProjectUrl>
+        <RepositoryUrl>https://github.com/IksRain/UnionSupport</RepositoryUrl>
+        <RepositoryType>git</RepositoryType>
+        <PackageLicenseExpression>MIT</PackageLicenseExpression>
+        <PackageIcon>icon.png</PackageIcon>
+        <PackageReadmeFile>Readme.md</PackageReadmeFile>
+        <PackageTags>union;discriminated-union;source-generator;csharp;dotnet</PackageTags>
+
+        <!-- SourceLink -->
+        <PublishRepositoryUrl>true</PublishRepositoryUrl>
+        <EmbedUntrackedSources>true</EmbedUntrackedSources>
+        <IncludeSymbols>true</IncludeSymbols>
+        <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+
+        <!-- Common -->
+        <LangVersion>preview</LangVersion>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <EnforceCodeStyleInBuild>false</EnforceCodeStyleInBuild>
+    </PropertyGroup>
+
+    <!-- SourceLink -->
+    <ItemGroup>
+        <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All" />
+    </ItemGroup>
+
+    <!-- Shared icon + readme for packaging -->
+    <ItemGroup>
+        <None Include="..\icon.png" Pack="true" PackagePath="\" Visible="false" />
+        <None Include="..\Readme.md" Pack="true" PackagePath="\" Visible="false" />
+    </ItemGroup>
+
+</Project>

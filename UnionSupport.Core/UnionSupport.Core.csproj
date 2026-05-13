@@ -2,12 +2,9 @@
 
     <PropertyGroup>
         <TargetFramework>netstandard2.0</TargetFramework>
-        <LangVersion>preview</LangVersion>
-        <ImplicitUsings>enable</ImplicitUsings>
-        <Nullable>enable</Nullable>
         <RootNamespace>UnionSupport</RootNamespace>
-        <IsPackable>true</IsPackable>
         <PackageId>UnionSupport.Core</PackageId>
+        <Description>Core types for UnionSupport: IUnion, [UnionImpl], [Union], and strategy enum.</Description>
     </PropertyGroup>
 
 </Project>

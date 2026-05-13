@@ -6,6 +6,7 @@
     <Project Path="UnionSupport.Generator.Unmanaged/UnionSupport.Generator.Unmanaged.csproj" />
     <Project Path="UnionSupport.Generator.Erasure/UnionSupport.Generator.Erasure.csproj" />
     <Project Path="UnionSupport.Analyzer/UnionSupport.Analyzer.csproj" />
+    <Project Path="UnionSupport.Type/UnionSupport.Type.csproj" />
   </Folder>
   <Folder Name="/tests/">
     <Project Path="UnionSupport.Tests.Product/UnionSupport.Tests.Product.csproj" />

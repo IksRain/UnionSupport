@@ -21,10 +21,10 @@ public sealed class ProductUnionGenerator : IIncrementalGenerator
                     return null;
 
                 var attr = ctx.Attributes[0];
-                if (attr.ConstructorArguments.Length < 1)
-                    return null;
-
-                var strategyVal = GetEnumInt(attr.ConstructorArguments[0]);
+                // Default to Product when no argument specified
+                var strategyVal = attr.ConstructorArguments.Length > 0
+                    ? GetEnumInt(attr.ConstructorArguments[0])
+                    : 0;
                 if (strategyVal != 0) // Product
                     return null;
 

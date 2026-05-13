@@ -62,7 +62,7 @@ public sealed class DuplicateUnionTypeAnalyzer : DiagnosticAnalyzer
         var isRefStruct = typeDecl is StructDeclarationSyntax sds
             && sds.Modifiers.Any(SyntaxKind.RefKeyword);
 
-        int strategyVal = -1;
+        int strategyVal = 0; // default to Product
         if (unionAttr.ArgumentList?.Arguments.Count > 0)
         {
             var expr = unionAttr.ArgumentList.Arguments[0].Expression.ToString();
@@ -72,7 +72,7 @@ public sealed class DuplicateUnionTypeAnalyzer : DiagnosticAnalyzer
         }
 
         // UNION002: ref struct union must use Product
-        if (isRefStruct && strategyVal != 0 && strategyVal != -1)
+        if (isRefStruct && strategyVal != 0)
         {
             context.ReportDiagnostic(Diagnostic.Create(RefStructRule,
                 unionAttr.GetLocation(),

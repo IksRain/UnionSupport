@@ -56,4 +56,15 @@ public class ProductGeneratorTests
             """;
         return GeneratorTestHelper.VerifySource(source);
     }
+
+    [Fact]
+    public Task DefaultStrategy_Product()
+    {
+        var source = """
+            using UnionSupport;
+            [UnionImpl]
+            partial struct DefaultUnion(int a, float b);
+            """;
+        return GeneratorTestHelper.VerifySource(source);
+    }
 }

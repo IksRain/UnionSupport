@@ -5,7 +5,7 @@ public sealed class UnionImplAttribute : Attribute
 {
     public UnionImplementationStrategy Strategy { get; }
 
-    public UnionImplAttribute(UnionImplementationStrategy strategy)
+    public UnionImplAttribute(UnionImplementationStrategy strategy = UnionImplementationStrategy.Product)
     {
         Strategy = strategy;
     }

@@ -1,0 +1,19 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="UnionSupport.Core/UnionSupport.Core.csproj" />
+    <Project Path="UnionSupport.Generator.Shared/UnionSupport.Generator.Shared.csproj" />
+    <Project Path="UnionSupport.Generator.Product/UnionSupport.Generator.Product.csproj" />
+    <Project Path="UnionSupport.Generator.Unmanaged/UnionSupport.Generator.Unmanaged.csproj" />
+    <Project Path="UnionSupport.Generator.Erasure/UnionSupport.Generator.Erasure.csproj" />
+    <Project Path="UnionSupport.Analyzer/UnionSupport.Analyzer.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="UnionSupport.Tests.Product/UnionSupport.Tests.Product.csproj" />
+    <Project Path="UnionSupport.Tests.Unmanaged/UnionSupport.Tests.Unmanaged.csproj" />
+    <Project Path="UnionSupport.Tests.Erasure/UnionSupport.Tests.Erasure.csproj" />
+    <Project Path="UnionSupport.Tests.Analyzer/UnionSupport.Tests.Analyzer.csproj" />
+  </Folder>
+  <Folder Name="/demo/">
+    <Project Path="ConsoleApp1/ConsoleApp1.csproj" />
+  </Folder>
+</Solution>

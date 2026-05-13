@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>netstandard2.0</TargetFramework>
+        <LangVersion>preview</LangVersion>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <RootNamespace>UnionSupport</RootNamespace>
+        <IsPackable>true</IsPackable>
+        <PackageId>UnionSupport.Core</PackageId>
+    </PropertyGroup>
+
+</Project>

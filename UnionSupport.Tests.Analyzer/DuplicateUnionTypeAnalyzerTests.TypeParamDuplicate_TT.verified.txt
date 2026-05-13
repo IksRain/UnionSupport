@@ -1,0 +1,1 @@
+﻿// [UNION001] Type 'T' appears more than once in union 'MyUnion'

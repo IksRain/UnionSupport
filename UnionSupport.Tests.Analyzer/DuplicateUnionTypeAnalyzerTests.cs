@@ -89,4 +89,16 @@ public class DuplicateUnionTypeAnalyzerTests
             """;
         return AnalyzerTestHelper.Verify(source);
     }
+
+    [Fact]
+    public Task NonRefStruct_WithRefStructMember_Error()
+    {
+        var source = """
+            using UnionSupport;
+            using System;
+            [UnionImpl(UnionImplementationStrategy.Product)]
+            partial struct BadUnion(int a, Span<byte> b);
+            """;
+        return AnalyzerTestHelper.Verify(source);
+    }
 }

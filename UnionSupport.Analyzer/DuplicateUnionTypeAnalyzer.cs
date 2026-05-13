@@ -29,8 +29,17 @@ public sealed class DuplicateUnionTypeAnalyzer : DiagnosticAnalyzer
         isEnabledByDefault: true
     );
 
+    public static readonly DiagnosticDescriptor RefStructMemberRule = new(
+        "UNION003",
+        "ref struct type cannot be a union member on a non-ref struct",
+        "Type '{0}' is a ref struct and cannot be a member of non-ref struct union '{1}'",
+        "UnionSupport",
+        DiagnosticSeverity.Error,
+        isEnabledByDefault: true
+    );
+
     public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get; }
-        = ImmutableArray.Create(DuplicateRule, RefStructStrategyRule);
+        = ImmutableArray.Create(DuplicateRule, RefStructStrategyRule, RefStructMemberRule);
 
     public override void Initialize(AnalysisContext context)
     {
@@ -104,6 +113,14 @@ public sealed class DuplicateUnionTypeAnalyzer : DiagnosticAnalyzer
             }
             else if (ti.Type is INamedTypeSymbol namedType)
             {
+                // UNION003: ref struct type on non-ref struct union
+                if (namedType.IsRefLikeType && !isRefStruct)
+                {
+                    context.ReportDiagnostic(Diagnostic.Create(RefStructMemberRule,
+                        param.GetLocation(), param.Type.ToString(), typeDecl.Identifier.Text));
+                    continue;
+                }
+
                 var key = namedType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
                 if (concreteSeen.TryGetValue(key, out _))
                 {

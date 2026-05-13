@@ -51,8 +51,18 @@ internal static class SourceGenHelpers
                 var displayType = paramType.ToDisplayString(SymbolDisplayFormat.MinimallyQualifiedFormat);
                 var isTp = paramType is ITypeParameterSymbol;
                 var fieldName = EncodeFieldName(paramType);
+                var unwrappedType = (string?)null;
 
-                members.Add(new UnionMemberInfo(displayType, index, isTp, fieldName, paramType));
+                // Nullable<T> value type: unwrap for implicit operators
+                if (paramType is INamedTypeSymbol nts
+                    && nts.OriginalDefinition.SpecialType == SpecialType.System_Nullable_T
+                    && nts.TypeArguments.Length == 1
+                    && nts.TypeArguments[0].IsValueType)
+                {
+                    unwrappedType = nts.TypeArguments[0].ToDisplayString(SymbolDisplayFormat.MinimallyQualifiedFormat);
+                }
+
+                members.Add(new UnionMemberInfo(displayType, index, isTp, fieldName, paramType, unwrappedType));
                 index++;
             }
         }
@@ -99,5 +109,6 @@ internal readonly record struct UnionMemberInfo(
     int Index,
     bool IsTypeParameter,
     string FieldName,
-    ITypeSymbol TypeSymbol
+    ITypeSymbol TypeSymbol,
+    string? UnwrappedType
 );

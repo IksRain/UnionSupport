@@ -1,4 +1,7 @@
 <Solution>
+  <Folder Name="/docs/">
+    <File Path="Readme.md" />
+  </Folder>
   <Folder Name="/src/">
     <Project Path="UnionSupport.Core/UnionSupport.Core.csproj" />
     <Project Path="UnionSupport.Generator.Shared/UnionSupport.Generator.Shared.csproj" />

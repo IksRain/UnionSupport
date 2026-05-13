@@ -26,14 +26,14 @@ UnionSupport.slnx
 
 ## NuGet 包
 
-| 包名 | 说明 |
-|------|------|
-| `UnionSupport.Core` | 核心类型定义 (必需) |
-| `UnionSupport.Generator.Product` | 积类型模拟生成器 |
-| `UnionSupport.Generator.Unmanaged` | FieldOffset 原生和类型生成器 |
-| `UnionSupport.Generator.Erasure` | Object 擦除生成器 |
-| `UnionSupport.Analyzer` | 编译期分析器 |
-| `UnionSupport.Type` | 预生成 1-17 泛型参数的联合体类型 |
+| 包名 | 说明                           |
+|------|------------------------------|
+| `UnionSupport.Core` | 核心类型定义 (必需)                  |
+| `UnionSupport.Generator.Product` | 积类型模拟实现生成器                   |
+| `UnionSupport.Generator.Unmanaged` | FieldOffset 原生和类型C样式Union实现生成器 |
+| `UnionSupport.Generator.Erasure` | Object 类型擦除实现生成器             |
+| `UnionSupport.Analyzer` | 编译期分析器                       |
+| `UnionSupport.Type` | 预生成 1-17 泛型参数的联合体类型，无需导入源生成器 |
 
 ## 快速开始
 
@@ -127,8 +127,7 @@ switch (u)
 
 C# 语言团队已在 [csharplang/proposals/unions.md](https://github.com/dotnet/csharplang/blob/main/proposals/unions.md) 中制定了完整的联合体语言规范。一旦 .NET 官方完成编译器的 `struct union` / `union struct` 原生实现，我们将：
 
-1. 编写 **Code Fix** 将 `[UnionImpl(Product)] partial struct Foo(...)` 无缝迁移为 `union struct Foo(...)`
-2. 已有 CodeFix demo: Product 策略 → 官方 `union struct` 语法
+1. 编写 **Code Fix** 将 `[UnionImpl(Product)] partial struct Foo(...)` 无缝迁移为 `union struct Foo(...)` 我们已实现一个小demo用作迁移union struct和struct union，我们尚不清楚官方的语法会如何，但是我们已经做好了准备
 3. 消除编译期代码生成开销，直接使用编译器原生支持
 4. 提供迁移工具链帮助现有项目平滑升级
 

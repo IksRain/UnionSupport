@@ -20,26 +20,17 @@ public sealed class DuplicateUnionTypeAnalyzer : DiagnosticAnalyzer
         isEnabledByDefault: true
     );
 
-    public static readonly DiagnosticDescriptor RefStructStrategyRule = new(
+    public static readonly DiagnosticDescriptor RefStructRule = new(
         "UNION002",
-        "ref struct union must use Product strategy",
-        "ref struct union '{0}' must use Product strategy. Unmanaged and ObjectErasure are not supported for ref struct types",
-        "UnionSupport",
-        DiagnosticSeverity.Error,
-        isEnabledByDefault: true
-    );
-
-    public static readonly DiagnosticDescriptor RefStructMemberRule = new(
-        "UNION003",
-        "ref struct type cannot be a union member on a non-ref struct",
-        "Type '{0}' is a ref struct and cannot be a member of non-ref struct union '{1}'",
+        "Ref struct constraint violation in union",
+        "{0}",
         "UnionSupport",
         DiagnosticSeverity.Error,
         isEnabledByDefault: true
     );
 
     public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get; }
-        = ImmutableArray.Create(DuplicateRule, RefStructStrategyRule, RefStructMemberRule);
+        = ImmutableArray.Create(DuplicateRule, RefStructRule);
 
     public override void Initialize(AnalysisContext context)
     {
@@ -62,32 +53,24 @@ public sealed class DuplicateUnionTypeAnalyzer : DiagnosticAnalyzer
         var isRefStruct = typeDecl is StructDeclarationSyntax sds
             && sds.Modifiers.Any(SyntaxKind.RefKeyword);
 
-        // Extract strategy value
         int strategyVal = -1;
         if (unionAttr.ArgumentList?.Arguments.Count > 0)
         {
-            var arg = unionAttr.ArgumentList.Arguments[0];
-            var typeInfo = context.SemanticModel.GetTypeInfo(arg.Expression, context.CancellationToken);
-            if (typeInfo.Type is INamedTypeSymbol)
-            {
-                // Enum member access like UnionImplementationStrategy.Product
-                var expr = arg.Expression.ToString();
-                if (expr.EndsWith(".Product")) strategyVal = 0;
-                else if (expr.EndsWith(".Unmanaged")) strategyVal = 1;
-                else if (expr.EndsWith(".ObjectErasure")) strategyVal = 2;
-            }
+            var expr = unionAttr.ArgumentList.Arguments[0].Expression.ToString();
+            if (expr.EndsWith(".Product")) strategyVal = 0;
+            else if (expr.EndsWith(".Unmanaged")) strategyVal = 1;
+            else if (expr.EndsWith(".ObjectErasure")) strategyVal = 2;
         }
 
-        // UNION002: ref struct must use Product
+        // UNION002: ref struct union must use Product
         if (isRefStruct && strategyVal != 0 && strategyVal != -1)
         {
-            context.ReportDiagnostic(Diagnostic.Create(RefStructStrategyRule,
+            context.ReportDiagnostic(Diagnostic.Create(RefStructRule,
                 unionAttr.GetLocation(),
-                typeDecl.Identifier.Text));
-            return; // don't run duplicate check on invalid ref struct unions
+                $"Ref struct union '{typeDecl.Identifier.Text}' must use Product strategy"));
+            return;
         }
 
-        // UNION001: duplicate type check
         if (typeDecl.ParameterList == null) return;
 
         var concreteSeen = new Dictionary<string, ParameterSyntax>();
@@ -113,14 +96,16 @@ public sealed class DuplicateUnionTypeAnalyzer : DiagnosticAnalyzer
             }
             else if (ti.Type is INamedTypeSymbol namedType)
             {
-                // UNION003: ref struct type on non-ref struct union
+                // UNION002: ref struct type on non-ref struct union
                 if (namedType.IsRefLikeType && !isRefStruct)
                 {
-                    context.ReportDiagnostic(Diagnostic.Create(RefStructMemberRule,
-                        param.GetLocation(), param.Type.ToString(), typeDecl.Identifier.Text));
+                    context.ReportDiagnostic(Diagnostic.Create(RefStructRule,
+                        param.GetLocation(),
+                        $"Type '{param.Type}' is a ref struct and cannot be a member of non-ref struct union '{typeDecl.Identifier.Text}'"));
                     continue;
                 }
 
+                // UNION001: duplicate check
                 var key = namedType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
                 if (concreteSeen.TryGetValue(key, out _))
                 {

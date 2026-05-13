@@ -43,3 +43,9 @@ Console.WriteLine("Done.");
 
 [UnionImpl(UnionImplementationStrategy.Product)]
 partial struct UnboxingUnion<T1,T2,T3>(T1 t1, T2 t2, T3 t3);
+
+[UnionImpl(UnionImplementationStrategy.Unmanaged)]
+partial struct CUnion<T1,T2,T3>(T1 t1, T2 t2, T3 t3)
+    where T1 : unmanaged
+    where T2 : unmanaged
+    where T3 : unmanaged;

@@ -145,4 +145,16 @@ public class DuplicateUnionTypeAnalyzerTests
             """;
         return AnalyzerTestHelper.Verify(source);
     }
+
+    [Fact]
+    public Task Unmanaged_ManagedValueType_Error()
+    {
+        var source = """
+            using UnionSupport;
+            struct HasRef { string s; }
+            [UnionImpl(UnionImplementationStrategy.Unmanaged)]
+            partial struct BadUnmanaged(int a, HasRef b);
+            """;
+        return AnalyzerTestHelper.Verify(source);
+    }
 }

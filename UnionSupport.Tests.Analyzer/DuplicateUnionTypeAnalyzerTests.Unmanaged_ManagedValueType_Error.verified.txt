@@ -1,0 +1,1 @@
+﻿// [UNION003] Type 'HasRef' is a managed type and cannot be used with Unmanaged FieldOffset strategy in union 'BadUnmanaged'

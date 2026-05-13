@@ -113,12 +113,12 @@ public sealed class DuplicateUnionTypeAnalyzer : DiagnosticAnalyzer
             }
             else if (ti.Type is INamedTypeSymbol namedType)
             {
-                // UNION003: Unmanaged strategy requires unmanaged types
-                if (strategyVal == 1 && namedType.IsReferenceType)
+                // UNION003: Unmanaged strategy requires unmanaged types only (no managed types)
+                if (strategyVal == 1 && !namedType.IsUnmanagedType)
                 {
                     context.ReportDiagnostic(Diagnostic.Create(UnmanagedTypeRule,
                         param.GetLocation(),
-                        $"Type '{param.Type}' is a reference type and cannot be used with Unmanaged FieldOffset strategy in union '{typeDecl.Identifier.Text}'"));
+                        $"Type '{param.Type}' is a managed type and cannot be used with Unmanaged FieldOffset strategy in union '{typeDecl.Identifier.Text}'"));
                     continue;
                 }
 

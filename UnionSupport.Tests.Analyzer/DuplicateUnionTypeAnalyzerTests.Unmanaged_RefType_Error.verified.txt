@@ -1,1 +1,1 @@
-﻿// [UNION003] Type 'string' is a reference type and cannot be used with Unmanaged FieldOffset strategy in union 'BadUnmanaged'
+﻿// [UNION003] Type 'string' is a managed type and cannot be used with Unmanaged FieldOffset strategy in union 'BadUnmanaged'

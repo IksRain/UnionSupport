@@ -4,15 +4,23 @@
         <TargetFramework>netstandard2.0</TargetFramework>
         <RootNamespace>UnionSupport.Type</RootNamespace>
         <PackageId>UnionSupport.Type</PackageId>
-        <Description>Pre-generated union types (Product/Unmanaged/ObjectErasure) for 1–17 type parameters. No source generator needed.</Description>
-        <DevelopmentDependency>true</DevelopmentDependency>
+        <Description>Pre-generated union types for 1–17 type parameters.</Description>
     </PropertyGroup>
 
     <ItemGroup>
         <ProjectReference Include="..\UnionSupport.Core\UnionSupport.Core.csproj" />
-        <ProjectReference Include="..\UnionSupport.Generator.Product\UnionSupport.Generator.Product.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
-        <ProjectReference Include="..\UnionSupport.Generator.Unmanaged\UnionSupport.Generator.Unmanaged.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
-        <ProjectReference Include="..\UnionSupport.Generator.Erasure\UnionSupport.Generator.Erasure.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
     </ItemGroup>
+
+    <!-- Use built analyzer DLLs directly: OutputItemType=Analyzer has issues in .NET 11 preview SDK -->
+    <Target Name="EnsureGeneratorsBuilt" BeforeTargets="CoreCompile">
+        <MSBuild Projects="..\UnionSupport.Generator.Product\UnionSupport.Generator.Product.csproj" Targets="Build" />
+        <MSBuild Projects="..\UnionSupport.Generator.Unmanaged\UnionSupport.Generator.Unmanaged.csproj" Targets="Build" />
+        <MSBuild Projects="..\UnionSupport.Generator.Erasure\UnionSupport.Generator.Erasure.csproj" Targets="Build" />
+        <ItemGroup>
+            <Analyzer Include="..\UnionSupport.Generator.Product\bin\$(Configuration)\netstandard2.0\UnionSupport.Generator.Product.dll" />
+            <Analyzer Include="..\UnionSupport.Generator.Unmanaged\bin\$(Configuration)\netstandard2.0\UnionSupport.Generator.Unmanaged.dll" />
+            <Analyzer Include="..\UnionSupport.Generator.Erasure\bin\$(Configuration)\netstandard2.0\UnionSupport.Generator.Erasure.dll" />
+        </ItemGroup>
+    </Target>
 
 </Project>

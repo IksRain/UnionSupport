@@ -35,7 +35,8 @@ public sealed class ErasureUnionGenerator : IIncrementalGenerator
         {
             if (info == null) return;
             var src = UnionCodeGenerator.Generate(info.Value);
-            spc.AddSource($"{info.Value.TypeName}.Erasure.g.cs", src);
+            var suffix = info.Value.IsGeneric ? $"_{info.Value.GenericParameters.Count}" : "";
+            spc.AddSource($"{info.Value.TypeName}{suffix}.Erasure.g.cs", src);
         });
     }
 

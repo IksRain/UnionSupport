@@ -13,7 +13,7 @@ using System.Runtime.InteropServices;
     partial struct SingleUnion : global::System.Runtime.CompilerServices.IUnion
     {
         [global::System.CodeDom.Compiler.GeneratedCode("UnionSupport", "1.0.0")]
-        [FieldOffset(0)] private byte __private_flag;
+        [FieldOffset(0)] private byte __private_flag = 1;
         [global::System.CodeDom.Compiler.GeneratedCode("UnionSupport", "1.0.0")]
         [FieldOffset(1)] private int __System_Int32;
 
@@ -43,14 +43,6 @@ using System.Runtime.InteropServices;
             }
             value = default!;
             return false;
-        }
-
-        [global::System.CodeDom.Compiler.GeneratedCode("UnionSupport", "1.0.0")]
-        public SingleUnion(int value) : this(value)
-        {
-            this = default;
-            __private_flag = 1;
-            __System_Int32 = value;
         }
 
         [global::System.CodeDom.Compiler.GeneratedCode("UnionSupport", "1.0.0")]

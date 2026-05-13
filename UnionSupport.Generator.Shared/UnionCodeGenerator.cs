@@ -121,12 +121,26 @@ internal static class UnionCodeGenerator
 
     private static void ProductFields(StringBuilder sb, UnionTypeInfo info)
     {
+        var flagInit = info.Members.Count == 1 ? " = 1" : "";
         sb.AppendLine($"        {GeneratedAttr}");
-        sb.AppendLine("        private byte __private_flag;");
+        sb.AppendLine($"        private byte __private_flag{flagInit};");
         for (int i = 0; i < info.Members.Count; i++)
         {
             sb.AppendLine($"        {GeneratedAttr}");
             sb.AppendLine($"        private {info.Members[i].DisplayType} {info.Members[i].FieldName} = {info.Members[i].ParamName};");
+        }
+        sb.AppendLine();
+    }
+
+    private static void UnmanagedFields(StringBuilder sb, UnionTypeInfo info)
+    {
+        var flagInit = info.Members.Count == 1 ? " = 1" : "";
+        sb.AppendLine($"        {GeneratedAttr}");
+        sb.AppendLine($"        [FieldOffset(0)] private byte __private_flag{flagInit};");
+        for (int i = 0; i < info.Members.Count; i++)
+        {
+            sb.AppendLine($"        {GeneratedAttr}");
+            sb.AppendLine($"        [FieldOffset(1)] private {info.Members[i].DisplayType} {info.Members[i].FieldName};");
         }
         sb.AppendLine();
     }
@@ -153,22 +167,11 @@ internal static class UnionCodeGenerator
         sb.AppendLine("            return false;");
     }
 
-    private static void UnmanagedFields(StringBuilder sb, UnionTypeInfo info)
-    {
-        sb.AppendLine($"        {GeneratedAttr}");
-        sb.AppendLine("        [FieldOffset(0)] private byte __private_flag;");
-        for (int i = 0; i < info.Members.Count; i++)
-        {
-            sb.AppendLine($"        {GeneratedAttr}");
-            sb.AppendLine($"        [FieldOffset(1)] private {info.Members[i].DisplayType} {info.Members[i].FieldName};");
-        }
-        sb.AppendLine();
-    }
-
     private static void ErasureFields(StringBuilder sb, UnionTypeInfo info)
     {
+        var valueInit = info.Members.Count == 1 ? $" = {info.Members[0].ParamName}" : "";
         sb.AppendLine($"        {GeneratedAttr}");
-        sb.AppendLine("        private readonly object? __value;");
+        sb.AppendLine($"        private readonly object? __value{valueInit};");
         sb.AppendLine();
     }
 
@@ -227,6 +230,7 @@ internal static class UnionCodeGenerator
 
     private static void ProductCtors(StringBuilder sb, UnionTypeInfo info)
     {
+        if (info.Members.Count == 1) return; // primary ctor handles it
         for (int i = 0; i < info.Members.Count; i++)
         {
             var m = info.Members[i];
@@ -242,6 +246,7 @@ internal static class UnionCodeGenerator
 
     private static void UnmanagedCtors(StringBuilder sb, UnionTypeInfo info)
     {
+        if (info.Members.Count == 1) return;
         for (int i = 0; i < info.Members.Count; i++)
         {
             var m = info.Members[i];
@@ -259,6 +264,7 @@ internal static class UnionCodeGenerator
 
     private static void ErasureCtors(StringBuilder sb, UnionTypeInfo info)
     {
+        if (info.Members.Count == 1) return;
         for (int i = 0; i < info.Members.Count; i++)
         {
             var m = info.Members[i];

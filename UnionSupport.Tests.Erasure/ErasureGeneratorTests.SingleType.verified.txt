@@ -11,7 +11,7 @@ using System.CodeDom.Compiler;
     partial struct SingleUnion : global::System.Runtime.CompilerServices.IUnion
     {
         [global::System.CodeDom.Compiler.GeneratedCode("UnionSupport", "1.0.0")]
-        private readonly object? __value;
+        private readonly object? __value = value;
 
         [global::System.CodeDom.Compiler.GeneratedCode("UnionSupport", "1.0.0")]
         public object? Value => __value;
@@ -29,12 +29,6 @@ using System.CodeDom.Compiler;
             }
             value = default!;
             return false;
-        }
-
-        [global::System.CodeDom.Compiler.GeneratedCode("UnionSupport", "1.0.0")]
-        public SingleUnion(double value) : this(value)
-        {
-            __value = value;
         }
 
         [global::System.CodeDom.Compiler.GeneratedCode("UnionSupport", "1.0.0")]

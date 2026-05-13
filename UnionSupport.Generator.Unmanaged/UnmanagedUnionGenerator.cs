@@ -35,7 +35,8 @@ public sealed class UnmanagedUnionGenerator : IIncrementalGenerator
         {
             if (info == null) return;
             var src = UnionCodeGenerator.Generate(info.Value);
-            spc.AddSource($"{info.Value.TypeName}.Unmanaged.g.cs", src);
+            var suffix = info.Value.IsGeneric ? $"_{info.Value.GenericParameters.Count}" : "";
+            spc.AddSource($"{info.Value.TypeName}{suffix}.Unmanaged.g.cs", src);
         });
     }
 

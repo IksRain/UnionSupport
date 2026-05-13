@@ -12,6 +12,7 @@
         <ProjectReference Include="..\UnionSupport.Generator.Unmanaged\UnionSupport.Generator.Unmanaged.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
         <ProjectReference Include="..\UnionSupport.Generator.Erasure\UnionSupport.Generator.Erasure.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
         <ProjectReference Include="..\UnionSupport.Analyzer\UnionSupport.Analyzer.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+        <ProjectReference Include="..\UnionSupport.Type\UnionSupport.Type.csproj" />
     </ItemGroup>
 
 </Project>

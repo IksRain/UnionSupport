@@ -23,12 +23,8 @@ public static class AnalyzerTestHelper
         public sealed class UnionImplAttribute : System.Attribute
         {
             public UnionImplementationStrategy Strategy { get; }
-            public UnionImplAttribute(UnionImplementationStrategy strategy) { Strategy = strategy; }
+            public UnionImplAttribute(UnionImplementationStrategy strategy = UnionImplementationStrategy.Product) { Strategy = strategy; }
         }
-        """,
-        """
-        namespace System.Runtime.CompilerServices;
-        public interface IUnion { object? Value { get; } }
         """
     };
 

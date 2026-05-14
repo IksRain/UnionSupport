@@ -1,6 +1,13 @@
 ﻿using UnionSupport;
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 
+List<int> arr = [with(100), 10, 20];
+
+unsafe
+{
+    Console.WriteLine(sizeof(Result));
+}
 Console.WriteLine("--- Product Strategy ---");
 MyUnion p1 = 42;
 Console.WriteLine($"Value: {p1.Value}, HasValue: {p1.HasValue}");
@@ -43,3 +50,13 @@ Console.WriteLine("\n--- Empty ---");
 Empty empty = default;
 Console.WriteLine($"Empty HasValue: {empty.HasValue}");
 Console.WriteLine("Done.");
+
+record struct Failure;
+record struct Success<T>;
+
+[UnionImpl]
+[Union]
+[StructLayout(LayoutKind.Auto,Pack = 1)]
+partial struct Result(long a,byte b);
+union  Result2<T>(Failure, Success<T>);
+

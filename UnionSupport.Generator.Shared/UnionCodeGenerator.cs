@@ -53,15 +53,8 @@ internal static class UnionCodeGenerator
             sb.AppendLine($"    {extraTypeAttr}");
 
         sb.AppendLine($"    {GeneratedAttr}");
-        if (!info.IsRefStruct)
-        {
-            sb.AppendLine($"    [global::System.Runtime.CompilerServices.Union]");
-            sb.AppendLine($"    {refPrefix}partial {typeKw} {info.TypeName}{tparams} : global::System.Runtime.CompilerServices.IUnion");
-        }
-        else
-        {
-            sb.AppendLine($"    {refPrefix}partial {typeKw} {info.TypeName}{tparams}");
-        }
+        sb.AppendLine($"    [global::System.Runtime.CompilerServices.Union]");
+        sb.AppendLine($"    {refPrefix}partial {typeKw} {info.TypeName}{tparams} : global::System.Runtime.CompilerServices.IUnion");
         sb.AppendLine("    {");
 
         if (info.Members.Count > 0)
@@ -97,16 +90,6 @@ internal static class UnionCodeGenerator
 
             // --- Implicit operators ---
             AppendImplicitOps(sb, info);
-        }
-        else
-        {
-            // 0-length union still needs Value + HasValue
-            sb.AppendLine($"        {GeneratedAttr}");
-            sb.AppendLine("        public object? Value => null;");
-            sb.AppendLine();
-            sb.AppendLine($"        {GeneratedAttr}");
-            sb.AppendLine("        public bool HasValue => false;");
-            sb.AppendLine();
         }
 
         sb.AppendLine("    }");
@@ -183,10 +166,6 @@ internal static class UnionCodeGenerator
         if (info.StrategyName == "ObjectErasure")
         {
             sb.AppendLine($"        public object? Value => __value;");
-        }
-        else if (info.IsRefStruct)
-        {
-            sb.AppendLine($"        public object? Value => throw new NotSupportedException(\"Value is not supported on ref struct unions. Use TryGetValue instead.\");");
         }
         else
         {
@@ -290,7 +269,6 @@ internal static class UnionCodeGenerator
         for (int i = 0; i < info.Members.Count; i++)
         {
             var m = info.Members[i];
-            // Skip implicit operators for nullable value types to avoid CS0457 ambiguity
             if (m.UnwrappedType != null) continue;
             sb.AppendLine($"        {GeneratedAttr}");
             sb.AppendLine($"        public static implicit operator {info.TypeName}{tp}({m.DisplayType} value)");

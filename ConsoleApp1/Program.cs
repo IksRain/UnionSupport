@@ -37,7 +37,7 @@ RefUnion r1 = 42;
 Console.WriteLine($"HasValue: {r1.HasValue}");
 if (r1.TryGetValue(out int ri))
     Console.WriteLine($"Got int: {ri}");
-try { var _ = r1.Value; } catch (NotSupportedException ex) { Console.WriteLine($"Value throws: {ex.Message}"); }
+try {  _ = r1.Value; } catch (NotSupportedException ex) { Console.WriteLine($"Value throws: {ex.Message}"); }
 
 Console.WriteLine("\n--- Empty ---");
 Empty empty = default;

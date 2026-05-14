@@ -81,12 +81,20 @@ partial struct MyUnion(int a, float b, string c);
 partial struct IntOrFloat(int a, float b);
 
 // Object Erasure (single object field, C# native)
-[UnionImpl(UnionImplementationStrategy.ObjectErasure)]
-partial struct AnyValue(int a, string b);
+[UnionImpl(UnionImplementationStrategy.ObjectErasure)] 
+partial struct AnyValue(int a, string b)
+{
+    /*not Value,but it's OK to use Value if you don't mind boxing*/
+    public string Unwrap()=> this switch
+    {
+        string i => i,
+        _ => throw new Exception()
+    }
+};
 
 // ref struct (Product only)
 [UnionImpl]
-ref partial struct SpanUnion(int a, float b);
+ref partial struct SpanUnion(int a, Span<byte> b);
 ```
 
 ### Usage
@@ -97,7 +105,7 @@ MyUnion x = 42;
 IntOrFloat y = 3.14f;
 AnyValue z = "hello";
 
-// Pattern matching (compiler auto-unwraps IUnion.Value)
+// Pattern matching (compiler auto-unwraps)
 switch (x)
 {
     case int i:  Console.WriteLine($"int: {i}"); break;
@@ -105,12 +113,8 @@ switch (x)
     case string s: Console.WriteLine($"string: {s}"); break;
 }
 
-// Non-boxing access
-if (x.TryGetValue(out int iv))
-    Console.WriteLine($"got int: {iv}");
-
 // Direct access
-Console.WriteLine(x.Value);
+Console.WriteLine(x.Value); // if you use ref struct as a case,you cannot do like this
 Console.WriteLine(x.HasValue);
 ```
 

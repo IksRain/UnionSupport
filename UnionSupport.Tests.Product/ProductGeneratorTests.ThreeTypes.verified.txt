@@ -91,15 +91,5 @@ using System.CodeDom.Compiler;
             __private_flag = 3;
         }
 
-        [global::System.CodeDom.Compiler.GeneratedCode("UnionSupport", "1.0.0")]
-        public static implicit operator TripleUnion(int value)
-            => new TripleUnion(value);
-        [global::System.CodeDom.Compiler.GeneratedCode("UnionSupport", "1.0.0")]
-        public static implicit operator TripleUnion(string value)
-            => new TripleUnion(value);
-        [global::System.CodeDom.Compiler.GeneratedCode("UnionSupport", "1.0.0")]
-        public static implicit operator TripleUnion(double value)
-            => new TripleUnion(value);
-
     }
 

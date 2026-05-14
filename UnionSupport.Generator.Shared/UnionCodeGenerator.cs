@@ -89,7 +89,7 @@ internal static class UnionCodeGenerator
             Ctors(sb, info);
 
             // --- Implicit operators ---
-            AppendImplicitOps(sb, info);
+            // AppendImplicitOps(sb, info); // removed: implicit operators not needed (C# 15 union provides them)
         }
 
         sb.AppendLine("    }");

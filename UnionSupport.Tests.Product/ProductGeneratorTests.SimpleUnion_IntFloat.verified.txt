@@ -70,12 +70,5 @@ using System.CodeDom.Compiler;
             __private_flag = 2;
         }
 
-        [global::System.CodeDom.Compiler.GeneratedCode("UnionSupport", "1.0.0")]
-        public static implicit operator MyUnion(int value)
-            => new MyUnion(value);
-        [global::System.CodeDom.Compiler.GeneratedCode("UnionSupport", "1.0.0")]
-        public static implicit operator MyUnion(float value)
-            => new MyUnion(value);
-
     }
 

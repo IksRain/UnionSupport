@@ -43,9 +43,5 @@ using System.CodeDom.Compiler;
             return false;
         }
 
-        [global::System.CodeDom.Compiler.GeneratedCode("UnionSupport", "1.0.0")]
-        public static implicit operator SingleUnion(int value)
-            => new SingleUnion(value);
-
     }
 

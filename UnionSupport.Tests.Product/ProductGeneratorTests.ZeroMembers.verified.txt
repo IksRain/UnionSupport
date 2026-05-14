@@ -10,11 +10,5 @@ using System.CodeDom.Compiler;
     [global::System.Runtime.CompilerServices.Union]
     partial struct EmptyUnion : global::System.Runtime.CompilerServices.IUnion
     {
-        [global::System.CodeDom.Compiler.GeneratedCode("UnionSupport", "1.0.0")]
-        public object? Value => null;
-
-        [global::System.CodeDom.Compiler.GeneratedCode("UnionSupport", "1.0.0")]
-        public bool HasValue => false;
-
     }
 

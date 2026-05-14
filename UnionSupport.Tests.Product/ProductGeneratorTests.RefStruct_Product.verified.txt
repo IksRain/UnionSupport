@@ -17,18 +17,7 @@ using System.CodeDom.Compiler;
         private float __System_Single = b;
 
         [global::System.CodeDom.Compiler.GeneratedCode("UnionSupport", "1.0.0")]
-        public object? Value
-        {
-            get
-            {
-                return __private_flag switch
-                {
-                    1 => __System_Int32,
-                    2 => __System_Single,
-                    _ => null,
-                };
-            }
-        }
+        public object? Value => throw new NotSupportedException("Value is not supported on ref struct unions. Use TryGetValue instead.");
 
         [global::System.CodeDom.Compiler.GeneratedCode("UnionSupport", "1.0.0")]
         public bool HasValue => __private_flag != 0;

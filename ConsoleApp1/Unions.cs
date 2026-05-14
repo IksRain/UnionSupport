@@ -10,6 +10,10 @@ partial struct IntOrFloat(int a, float b);
 [UnionSupport.UnionImpl(UnionSupport.UnionImplementationStrategy.ObjectErasure)]
 partial struct AnyValue(int a, string b);
 
+// ref struct Product
+[UnionSupport.UnionImpl]
+ref partial struct RefUnion(int a, float b);
+
 // 0-length
-[UnionSupport.UnionImpl(UnionSupport.UnionImplementationStrategy.Product)]
+[UnionSupport.UnionImpl]
 partial struct Empty;

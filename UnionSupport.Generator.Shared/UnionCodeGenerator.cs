@@ -69,7 +69,7 @@ internal static class UnionCodeGenerator
             // --- Fields ---
             Fields(sb, info);
 
-            // --- Value property ---
+            // --- Value property (explicit IUnion.Value for non-ref, throws for ref struct) ---
             AppendValueProp(sb, info, ValueExprFactory);
 
             // --- HasValue ---
@@ -183,6 +183,10 @@ internal static class UnionCodeGenerator
         if (info.StrategyName == "ObjectErasure")
         {
             sb.AppendLine($"        public object? Value => __value;");
+        }
+        else if (info.IsRefStruct)
+        {
+            sb.AppendLine($"        public object? Value => throw new NotSupportedException(\"Value is not supported on ref struct unions. Use TryGetValue instead.\");");
         }
         else
         {
